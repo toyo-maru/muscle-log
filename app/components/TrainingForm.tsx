@@ -116,15 +116,38 @@ export default function TrainingForm({ onSave }: Props) {
                 <div>
                     {todayTrainings.map((training, trainingIndex) => (
                         <div key={trainingIndex}>
-                            <span>{trainingIndex + 1}種目目：</span>
-                            <input
-                                type="text"
-                                value={training.trainingName}
-                                onChange={(e) => updateTrainingName(trainingIndex, e.target.value)}
-                                placeholder="種目名を入力"
-                            />
+                            <div className="flex items-center gap-2 mt-4 mb-2">
+                                <span> {trainingIndex + 1}種目目： </span>
+                                <input
+                                    type="text"
+                                    value={training.trainingName}
+                                    onChange={(e) => updateTrainingName(trainingIndex, e.target.value)}
+                                />
+                                <button
+                                    onClick={() => deleteTraining(trainingIndex)}
+                                    className="px-3 py-1 bg-red-600 hover:opacity-80 text-white text-sm rounded transition"
+                                >
+                                    種目削除
+                                </button>
+                            </div>
+                            <div className="flex gap-2 mt-2 mb-2">
+                                <button
+                                    onClick={() => addSet(trainingIndex)}
+                                    className="px-3 py-1 bg-blue-700 hover:opacity-80 text-white text-sm rounded transition"
+                                >
+                                    セット追加
+                                </button>
+                                {training.sets.length > 0 && (
+                                    <button
+                                        onClick={() => deleteSet(trainingIndex, training.sets.length - 1)}
+                                        className="px-3 py-1 bg-red-600 hover:opacity-80 text-white text-sm rounded transition"
+                                    >
+                                        セット削除
+                                    </button>
+                                )}
+                            </div>
                             {training.sets.map((set, setIndex) => (
-                                <div key={setIndex}>
+                                <div key={setIndex} className="flex gap-2 mt-2 mb-2">
                                     <span>セット{set.setNo}:</span>
                                     <input
                                         type="number"
@@ -138,25 +161,33 @@ export default function TrainingForm({ onSave }: Props) {
                                         onChange={(e) => updateSet(trainingIndex, setIndex, set.weight, Number(e.target.value))}
                                     />
                                     <span>回</span>
-                                    <button onClick={() => deleteSet(trainingIndex, setIndex)}>削除</button>
+                                    <button
+                                        onClick={() => deleteSet(trainingIndex, setIndex)}
+                                        className="px-3 py-1 bg-red-600 hover:opacity-80 text-white text-xs rounded transition"
+                                    >
+                                        削除
+                                    </button>
                                 </div>
                             ))}
-                            <div>
-                                <button onClick={() => addSet(trainingIndex)}>セット追加</button>
-                                {training.sets.length > 0 && (
-                                    <button onClick={() => deleteSet(trainingIndex, training.sets.length - 1)}>セット削除</button>
-                                )}
-                            </div>
-                            <button onClick={() => deleteTraining(trainingIndex)}>種目削除</button>
                         </div>
                     ))}
                 </div>
             )}
 
-            <button onClick={addTraining}>種目を追加</button>
+            <div className="flex gap-4 mt-6">
+                <button
+                    onClick={addTraining}
+                    className="px-4 py-2 bg-blue-700 hover:opacity-80 text-white text-sm rounded transition"
+                >
+                    + 新しい種目を追加
+                </button>
 
-            <div>
-                <button onClick={saveDailyTraining}>本日のトレーニングを保存</button>
+                <button
+                    onClick={saveDailyTraining}
+                    className="px-6 py-3 bg-green-600 hover:opacity-80 text-white text-sm rounded transition"
+                >
+                    本日のトレーニングを保存
+                </button>
             </div>
         </div>
     );
