@@ -1,94 +1,163 @@
 "use client";
 
-// トレーニング記録を入力するフォームコンポーネント
+// 1日分のトレーニング記録を入力するフォームコンポーネント
 
 // インポート
 import { useState } from "react";
-import type { SetRecord, TrainingRecord } from "../types";
+import type { DailyRecord, SetRecord, TrainingRecord } from "../types";
 
-export default function TrainingForm() {
-    // 種目名を保持
-    const [trainingName, setTrainingName] = useState("");
+// このコンポーネントが受け取るpropsの型定義
+type Props = {
+    onSave: (dailyRecord: DailyRecord) => void; // 1日分のデータを保存時に親に渡す関数
+};
 
-    // セット一覧を保持
-    const [sets, setSets] = useState<SetRecord[]>([]);
+export default function TrainingForm({ onSave }: Props) {
+    // 本日入力した複数種目を保持
+    const [todayTrainings, setTodayTrainings] = useState<TrainingRecord[]>([]);
 
+    // 新規種目を本日のトレーニングに追加する関数
+    const addTraining = () => {
+        // 空のTrainingRecordを追加
+        const emptyTraining: TrainingRecord = {
+            trainingName: "",
+            sets: [],
+            totalVolume: 0,
+        };
+        setTodayTrainings([...todayTrainings, emptyTraining]);
+    };
+
+    // 本日のトレーニング内の種目名を更新する関数
+    const updateTrainingName = (trainingIndex: number, name: string) => {
+        const updated = [...todayTrainings];
+        updated[trainingIndex].trainingName = name;
+        setTodayTrainings(updated);
+    };
+
+    // 本日のトレーニングから種目を削除する関数
+    const deleteTraining = (index: number) => {
+        const updated = todayTrainings.filter((_, i) => i !== index);
+        setTodayTrainings(updated);
+    };
     // セットを追加する関数
-    const addSet = () => {
+    const addSet = (trainingIndex: number) => {
+        const updated = [...todayTrainings];
         const newSet: SetRecord = {
-            setNo: sets.length + 1, // 現在のセット数 + 1
+            setNo: updated[trainingIndex].sets.length + 1,
             weight: 0,
             reps: 0,
         };
-        setSets([...sets, newSet]); // 既存セットに新セットを追加
+        updated[trainingIndex].sets = [...updated[trainingIndex].sets, newSet];
+        // totalVolumeを再計算
+        updated[trainingIndex].totalVolume = updated[trainingIndex].sets.reduce(
+            (total, set) => total + set.weight * set.reps,
+            0
+        );
+        setTodayTrainings(updated);
     };
-
     // セットを削除する関数
-    const deleteSet = (index: number) => {
-        const updated = sets.filter((_, i) => i !== index); // 指定位置のセットを削除
-        setSets(updated); // stateを更新
+    const deleteSet = (trainingIndex: number, setIndex: number) => {
+        const updated = [...todayTrainings];
+        updated[trainingIndex].sets = updated[trainingIndex].sets.filter((_, i) => i !== setIndex);
+        // totalVolumeを再計算
+        updated[trainingIndex].totalVolume = updated[trainingIndex].sets.reduce(
+            (total, set) => total + set.weight * set.reps,
+            0
+        );
+        setTodayTrainings(updated);
     };
 
-    // セットの重量を変更する関数
-    const updateWeight = (index: number, weight: number) => {
-        const updated = [...sets]; // 既存配列をコピー
-        updated[index].weight = weight; // 指定位置の重量を変更
-        setSets(updated); // stateを更新
+    // セット情報を更新する関数
+    const updateSet = (trainingIndex: number, setIndex: number, weight: number, reps: number) => {
+        const updated = [...todayTrainings];
+        updated[trainingIndex].sets[setIndex].weight = weight;
+        updated[trainingIndex].sets[setIndex].reps = reps;
+        // totalVolumeを再計算
+        updated[trainingIndex].totalVolume = updated[trainingIndex].sets.reduce(
+            (total, set) => total + set.weight * set.reps,
+            0
+        );
+        setTodayTrainings(updated);
     };
 
-    // セットの回数を変更する関数
-    const updateReps = (index: number, reps: number) => {
-        const updated = [...sets];
-        updated[index].reps = reps;
-        setSets(updated);
+
+
+    // ========== 保存に関する関数 ==========
+    // 1日分のトレーニングを保存する関数
+    const saveDailyTraining = () => {
+        // トレーニングが1つもない場合は警告を出して保存しない
+        if (todayTrainings.length === 0) {
+            alert("最低1種目追加してください");
+            return;
+        }
+
+        // 本日の日付を YYYY-MM-DD 形式で取得
+        const today = new Date();
+        const dateString = today.toISOString().split("T")[0];
+
+        // DailyRecord型のデータを作成
+        const dailyRecord: DailyRecord = {
+            date: dateString,
+            trainings: todayTrainings,
+        };
+
+        // 親に渡して保存
+        onSave(dailyRecord);
+
+        // フォームをリセット
+        setTodayTrainings([]);
     };
 
     return (
         <div>
             <h2>トレーニング記録フォーム</h2>
-
-            {/* 種目名を入力するテキストボックス
-      　入力値はtrainingNameに保存され、変更があるたびにsetTrainingNameで更新される*/}
-            <div>
-                <label>種目名:</label>
-                <input
-                    type="text"
-                    value={trainingName}
-                    onChange={(e) => setTrainingName(e.target.value)}
-                    placeholder="例: ベンチプレス"
-                />
-            </div>
-
-            <div>
-                {/* セット追加ボタン */}
-                <button onClick={addSet}>セット追加</button>
-
-                {/* セット削除ボタン */}
-                <button onClick={() => deleteSet(sets.length - 1)}>セット削除</button>
-            </div>
-
-            {/* セット一覧 */}
-            {/* map関数でsetsをループして各セットを表示 */}
-            {sets.map((set, index) => (
-                <div key={index}>
-                    <span>セット{set.setNo}</span>
-                    <input
-                        type="number"
-                        value={set.weight}
-                        onChange={(e) => updateWeight(index, Number(e.target.value))}
-                    />
-                    kg x
-                    <input
-                        type="number"
-                        value={set.reps}
-                        onChange={(e) => updateReps(index, Number(e.target.value))}
-                    />
-                    回
+            {todayTrainings.length === 0 ? (
+                <p>まだ種目が追加されていません</p>
+            ) : (
+                <div>
+                    {todayTrainings.map((training, trainingIndex) => (
+                        <div key={trainingIndex}>
+                            <span>{trainingIndex + 1}種目目：</span>
+                            <input
+                                type="text"
+                                value={training.trainingName}
+                                onChange={(e) => updateTrainingName(trainingIndex, e.target.value)}
+                                placeholder="種目名を入力"
+                            />
+                            {training.sets.map((set, setIndex) => (
+                                <div key={setIndex}>
+                                    <span>セット{set.setNo}:</span>
+                                    <input
+                                        type="number"
+                                        value={set.weight}
+                                        onChange={(e) => updateSet(trainingIndex, setIndex, Number(e.target.value), set.reps)}
+                                    />
+                                    <span>kg ×</span>
+                                    <input
+                                        type="number"
+                                        value={set.reps}
+                                        onChange={(e) => updateSet(trainingIndex, setIndex, set.weight, Number(e.target.value))}
+                                    />
+                                    <span>回</span>
+                                    <button onClick={() => deleteSet(trainingIndex, setIndex)}>削除</button>
+                                </div>
+                            ))}
+                            <div>
+                                <button onClick={() => addSet(trainingIndex)}>セット追加</button>
+                                {training.sets.length > 0 && (
+                                    <button onClick={() => deleteSet(trainingIndex, training.sets.length - 1)}>セット削除</button>
+                                )}
+                            </div>
+                            <button onClick={() => deleteTraining(trainingIndex)}>種目削除</button>
+                        </div>
+                    ))}
                 </div>
-            ))}
+            )}
 
-            {/* TODO 保存ボタン */}
+            <button onClick={addTraining}>種目を追加</button>
 
+            <div>
+                <button onClick={saveDailyTraining}>本日のトレーニングを保存</button>
+            </div>
         </div>
     );
 }

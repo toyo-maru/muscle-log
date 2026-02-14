@@ -6,24 +6,9 @@
 
 // インポート
 import { useEffect, useState } from "react";
-import type { SetRecord, TrainingLog, TrainingRecord } from "./types";
-import { loadData } from "./util/storage";
+import type { DailyRecord, TrainingLog } from "./types";
+import { loadData, saveData } from "./util/storage";
 import TrainingForm from "./components/TrainingForm";
-
-// データの初期化
-// 1セットの記録の初期値
-const emptySetRecord: SetRecord = {
-  setNo: 0,
-  weight: 0,
-  reps: 0,
-};
-
-// 種目の記録の初期値
-const emptyTrainingRecord: TrainingRecord = {
-  trainingName: "",
-  sets: [],
-  totalVolume: 0,
-};
 
 // このページの本体
 export default function Home() {
@@ -36,11 +21,29 @@ export default function Home() {
     setLog(data);
   }, []);
 
+  // TrainingForm から 1日分のトレーニングを受け取って保存する関数
+  const dailyTrainingSave = (dailyRecord: DailyRecord) => {
+    // 新しい日付のレコードなので、daysに追加
+    const updated: TrainingLog = {
+      days: [...log.days, dailyRecord],
+    };
+    
+    // LocalStorageに保存
+    saveData(updated);
+
+    // stateも更新（画面に反映させるため）
+    setLog(updated);
+
+    // 保存完了のメッセージを表示
+    alert(`${dailyRecord.date} のトレーニングを保存しました！`);
+  };
+
   return (
     <div>
       <h1>筋トレ記録アプリ</h1>
       <p>記録日数: {log.days.length}日</p>
-      <TrainingForm />
+      {/* TrainingFormで1日分のトレーニングを管理・保存 */}
+      <TrainingForm onSave={dailyTrainingSave} />
     </div>
   );
 }
