@@ -125,7 +125,7 @@ export default function TrainingForm({ onSave }: Props) {
                                 />
                                 <button
                                     onClick={() => deleteTraining(trainingIndex)}
-                                    className="px-3 py-1 bg-red-600 hover:opacity-80 text-white text-sm rounded transition"
+                                    className="px-3 py-1 bg-red-400 hover:opacity-80 text-white text-sm rounded transition"
                                 >
                                     種目削除
                                 </button>
@@ -140,7 +140,7 @@ export default function TrainingForm({ onSave }: Props) {
                                 {training.sets.length > 0 && (
                                     <button
                                         onClick={() => deleteSet(trainingIndex, training.sets.length - 1)}
-                                        className="px-3 py-1 bg-red-600 hover:opacity-80 text-white text-sm rounded transition"
+                                        className="px-3 py-1 bg-red-400 hover:opacity-80 text-white text-sm rounded transition"
                                     >
                                         セット削除
                                     </button>
@@ -163,7 +163,7 @@ export default function TrainingForm({ onSave }: Props) {
                                     <span>回</span>
                                     <button
                                         onClick={() => deleteSet(trainingIndex, setIndex)}
-                                        className="px-3 py-1 bg-red-600 hover:opacity-80 text-white text-xs rounded transition"
+                                        className="px-3 py-1 bg-red-400 hover:opacity-80 text-white text-xs rounded transition"
                                     >
                                         削除
                                     </button>

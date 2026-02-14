@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import type { DailyRecord, TrainingLog } from "./types";
 import { loadData, saveData } from "./util/storage";
 import TrainingForm from "./components/TrainingForm";
+import Header from "./components/Header";
 
 // このページの本体
 export default function Home() {
@@ -38,12 +39,27 @@ export default function Home() {
     alert(`${dailyRecord.date} のトレーニングを保存しました！`);
   };
 
+  // 全期間の総重量を計算する関数
+  const calculateTotalWeight = (): number => {
+    // 各日の総重量を計算
+    return log.days.reduce((total, day) => {
+      // 各日の中で、すべての種目のtotalVolumeを足し合わせる
+      const dayTotal = day.trainings.reduce((daySum, training) => daySum + training.totalVolume, 0);
+      // その日の合計を全体の合計に足す
+      return total + dayTotal;
+    }, 0); // 初期値：0
+  };
+
+  // 計算した総重量を取得
+  const totalWeight = calculateTotalWeight();
+
   return (
     <div>
-      <h1>筋トレ記録アプリ</h1>
-      <p>記録日数: {log.days.length}日</p>
-      {/* TrainingFormで1日分のトレーニングを管理・保存 */}
-      <TrainingForm onSave={dailyTrainingSave} />
+      <Header recordDays={log.days.length} totalWeight={totalWeight} />
+      <div className="max-w-2xl mx-auto px-4">
+        {/* TrainingFormで1日分のトレーニングを管理・保存 */}
+        <TrainingForm onSave={dailyTrainingSave} />
+      </div>
     </div>
   );
 }
