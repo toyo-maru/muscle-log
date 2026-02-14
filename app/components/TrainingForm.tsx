@@ -108,20 +108,22 @@ export default function TrainingForm({ onSave }: Props) {
     };
 
     return (
-        <div>
-            <h2>トレーニング記録フォーム</h2>
+        <div className="border border-gray-300 rounded-lg p-6">
+            <h2 className="text-2xl font-bold mb-6">トレーニング記録フォーム</h2>
             {todayTrainings.length === 0 ? (
                 <p>まだ種目が追加されていません</p>
             ) : (
-                <div>
+                <div className="space-y-4">
                     {todayTrainings.map((training, trainingIndex) => (
-                        <div key={trainingIndex}>
-                            <div className="flex items-center gap-2 mt-4 mb-2">
-                                <span> {trainingIndex + 1}種目目： </span>
+                        <div key={trainingIndex} className="border-l-4 border-blue-500 bg-white p-3 rounded">
+                            <div className="flex items-center gap-3 mb-2">
+                                <span className="font-semibold text-blue-600 w-16">{trainingIndex + 1}種目目</span>
                                 <input
                                     type="text"
                                     value={training.trainingName}
                                     onChange={(e) => updateTrainingName(trainingIndex, e.target.value)}
+                                    placeholder="種目名を入力"
+                                    className="px-3 py-2 border border-gray-300 rounded flex-1"
                                 />
                                 <button
                                     onClick={() => deleteTraining(trainingIndex)}
@@ -146,6 +148,7 @@ export default function TrainingForm({ onSave }: Props) {
                                     </button>
                                 )}
                             </div>
+                            <div className="text-m font-bold text-gray-600 mb-2">合計重量: {training.totalVolume}kg</div>
                             {training.sets.map((set, setIndex) => (
                                 <div key={setIndex} className="flex gap-2 mt-2 mb-2">
                                     <span>セット{set.setNo}:</span>
@@ -153,12 +156,14 @@ export default function TrainingForm({ onSave }: Props) {
                                         type="number"
                                         value={set.weight}
                                         onChange={(e) => updateSet(trainingIndex, setIndex, Number(e.target.value), set.reps)}
+                                        className="w-15 border border-gray-300 rounded text-right"
                                     />
                                     <span>kg ×</span>
                                     <input
                                         type="number"
                                         value={set.reps}
                                         onChange={(e) => updateSet(trainingIndex, setIndex, set.weight, Number(e.target.value))}
+                                        className="w-15 border border-gray-300 rounded text-right"
                                     />
                                     <span>回</span>
                                     <button
