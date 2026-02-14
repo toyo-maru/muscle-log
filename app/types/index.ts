@@ -1,7 +1,6 @@
 // 型定義をまとめるファイル
 // 役割：型定義を一箇所にまとめて管理しやすくする
-// index.tsにすることで、import時にパスを簡略化できる
-// 型定義のファイルが増えた場合にも対応しやすい
+// index.tsは最初に読み込まれるため、ここに型定義をまとめることで、他のファイルからインポートしやすくなる
 
 // セットごとの記録
 export type SetRecord = {
@@ -11,8 +10,8 @@ export type SetRecord = {
 };
 
 // 種目ごとの記録
-export type ExerciseRecord = {
-  exerciseName: string; // 種目名
+export type TrainingRecord = {
+  trainingName: string; // 種目名
   sets: SetRecord[]; // 各セットの記録
   totalVolume: number; // 総重量
 };
@@ -20,7 +19,7 @@ export type ExerciseRecord = {
 // 日ごとの記録
 export type DailyRecord = {
   date: string; // YYYY-MM-DD
-  exercises: ExerciseRecord[]; // 種目ごとの記録一覧
+  trainings: TrainingRecord[]; // 種目ごとの記録一覧
 };
 
 // 週ごとの記録
@@ -31,6 +30,11 @@ export type WeeklyRecord = {
 
 // 月ごとの記録
 export type MonthlyRecord = {
-    month: string; // YYYY-MM
-    weeklyRecords: WeeklyRecord[]; // 週ごとの記録一覧
+  month: string; // YYYY-MM
+  weeklyRecords: WeeklyRecord[]; // 週ごとの記録一覧
+};
+
+// 全体データ
+export type TrainingLog = {
+  days: DailyRecord[]; // 日ごとの記録一覧
 };
